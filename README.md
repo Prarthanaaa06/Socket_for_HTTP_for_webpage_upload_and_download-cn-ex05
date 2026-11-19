@@ -16,6 +16,74 @@ To write a PYTHON program for socket for HTTP for web page upload and download
 6.Stop the program
 <BR>
 ## Program 
+server.py
+```
+import socket
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+server.bind(('localhost', 12345))
+server.listen(1)
+
+print("Server is waiting for client...")
+
+conn, addr = server.accept()
+print("Client connected:", addr)
+
+while True:
+    data = conn.recv(1024)
+
+    if not data:
+        break
+
+    if data == b'END':
+        print("Communication stopped")
+        break
+
+    print("Frame received:", data.decode())
+
+    
+    conn.send(b'ACK')
+
+conn.close()
+server.close()
+```
+client.py
+```
+import socket
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+client.connect(('localhost', 12345))
+
+print("Connected to server")
+frame_size = int(input("Enter frame size: "))
+
+message = input("Enter web page data: ")
+
+frames = [message[i:i+frame_size]
+          for i in range(0, len(message), frame_size)]
+
+
+for frame in frames:
+
+    client.send(frame.encode())
+
+    ack = client.recv(1024).decode()
+
+    if ack == "ACK":
+        print("ACK received - Frame sent successfully:", frame)
+    else:
+        print("NACK received - Frame not received")
+
+client.send(b'END')
+
+print("Program stopped")
+
+client.close()
+```
+
 ## OUTPUT
+<img width="1917" height="1078" alt="image" src="https://github.com/user-attachments/assets/ffb5eda6-20d8-49f2-b25c-0c9c03a64e6b" />
+
+
 ## Result
 Thus the socket for HTTP for web page upload and download created and Executed
